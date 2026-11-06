@@ -272,6 +272,7 @@ if (_THIS_IS_TURTLE_BLOCKS_) {
 
 const getMainToolbarButtonNames = name => {
     return (
+        typeof name === "string" &&
         [
             "popdown-palette",
             "run",
@@ -295,6 +296,7 @@ const getMainToolbarButtonNames = name => {
 
 const getAuxToolbarButtonNames = name => {
     return (
+        typeof name === "string" &&
         [
             "paste-disabled",
             "Cartesian",
@@ -307,6 +309,9 @@ const getAuxToolbarButtonNames = name => {
         ].indexOf(name) > -1
     );
 };
+
+const isJapanese = lang =>
+    typeof lang === "string" && (lang === "ja" || lang.startsWith("ja-") || lang.startsWith("ja_"));
 
 const getLanguagePreference = () => {
     let language;
@@ -337,7 +342,7 @@ const createDefaultStack = () => {
     } else {
         const language = getLanguagePreference();
 
-        if (language === "ja") {
+        if (isJapanese(language)) {
             DATAOBJS = [
                 [0, "start", screen.width / 2 + 28, 100, [null, 1, null]],
                 [1, "settimbre", 0, 0, [0, 2, 4, 3]],
@@ -421,11 +426,11 @@ const createDefaultStack = () => {
     }
 };
 
-const createHelpContent = activity => {
+const createHelpContent = (activity = {}) => {
     const language = getLanguagePreference();
 
     let LOGO = LOGODEFAULT;
-    if (language === "ja") {
+    if (isJapanese(language)) {
         LOGO = LOGOJA;
     }
 
@@ -674,7 +679,11 @@ const createHelpContent = activity => {
             // widget is open. Read the preference the way ThemeBox itself does so
             // this does not depend on ThemeBox existing yet.
             () => {
-                const theme = activity.storage.themePreference || getSystemThemePreference();
+                const theme =
+                    (activity && activity.storage && activity.storage.themePreference) ||
+                    (typeof getSystemThemePreference === "function"
+                        ? getSystemThemePreference()
+                        : "light");
                 // highcontrast is a black-backgrounded theme, so it wants the dark icon too.
                 const svg = theme === "light" ? TABBUTTON_LIGHT : TABBUTTON_DARK;
                 return `data:image/svg+xml;base64,${window.btoa(base64Encode(svg))}`;
@@ -823,6 +832,30 @@ if (typeof module !== "undefined" && module.exports) {
         get HELPCONTENT() {
             return HELPCONTENT;
         },
+        get DATAOBJS() {
+            return DATAOBJS;
+        },
+        get BUILTINPALETTES() {
+            return BUILTINPALETTES;
+        },
+        get BUILTINPALETTESFORL23N() {
+            return BUILTINPALETTESFORL23N;
+        },
+        get MULTIPALETTES() {
+            return MULTIPALETTES;
+        },
+        get SKIPPALETTES() {
+            return SKIPPALETTES;
+        },
+        get MULTIPALETTEICONS() {
+            return MULTIPALETTEICONS;
+        },
+        get MULTIPALETTENAMES() {
+            return MULTIPALETTENAMES;
+        },
+        getMainToolbarButtonNames,
+        getAuxToolbarButtonNames,
+        VERSION,
         LOGOJA1,
         NUMBERBLOCKDEFAULT,
         DEFAULTPALETTE,
@@ -839,4 +872,13 @@ if (typeof window !== "undefined") {
     window.NUMBERBLOCKDEFAULT = NUMBERBLOCKDEFAULT;
     window.DEFAULTPALETTE = DEFAULTPALETTE;
     window.TITLESTRING = TITLESTRING;
+    window.BUILTINPALETTES = BUILTINPALETTES;
+    window.BUILTINPALETTESFORL23N = BUILTINPALETTESFORL23N;
+    window.MULTIPALETTES = MULTIPALETTES;
+    window.SKIPPALETTES = SKIPPALETTES;
+    window.MULTIPALETTEICONS = MULTIPALETTEICONS;
+    window.MULTIPALETTENAMES = MULTIPALETTENAMES;
+    window.getMainToolbarButtonNames = getMainToolbarButtonNames;
+    window.getAuxToolbarButtonNames = getAuxToolbarButtonNames;
+    window.VERSION = VERSION;
 }
